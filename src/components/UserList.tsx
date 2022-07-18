@@ -1,26 +1,39 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 import { GithubUser } from "../models/github";
 interface Props {
   users: GithubUser[];
+  handleClickUser: (name: string) => void;
 }
 
-const UserList: React.FC<Props> = ({ users }) => (
-  <SCUl>
-    {users.map((user) => (
-      <li key={user.id}>
-        <img src={user.avatar_url} alt={user.login} />
-        <div>
-          <p>{user.login}</p>
-        </div>
+const UserList: React.FC<Props> = ({ users, handleClickUser }) => {
+  const onClick = useCallback(
+    (e: React.MouseEvent<HTMLElement>) => {
+      const { dataset } = e.currentTarget;
+      handleClickUser(dataset.name!);
+    },
+    [handleClickUser]
+  );
 
-        <span className={user.site_admin ? "admin" : ""}>
-          {user.site_admin ? "Admin" : " User"}
-        </span>
-      </li>
-    ))}
-  </SCUl>
-);
+  return (
+    <SCUl>
+      {users.map((user) => (
+        <li key={user.id}>
+          <img src={user.avatar_url} alt={user.login} />
+          <div>
+            <p>{user.login}</p>
+          </div>
+          <button data-name={user.login} onClick={onClick}>
+            Detail
+          </button>
+          <span className={user.site_admin ? "admin" : ""}>
+            {user.site_admin ? "Admin" : " User"}
+          </span>
+        </li>
+      ))}
+    </SCUl>
+  );
+};
 
 export default UserList;
 

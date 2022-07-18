@@ -14,8 +14,12 @@ import {
   fetchUsersSuccess,
   fetchUsersFail,
   fetchingUsers,
+  fetchUser,
+  fetchUserSuccess,
+  fetchingUser,
+  fetchUserFail,
 } from "../slices/github";
-import { getUsersList } from "../utils/apis";
+import { getUser, getUsersList } from "../utils/apis";
 import { parseLink, parseSince } from "../utils/parser";
 
 // WORKAROUND: https://api.github.com/users API didn't return prev in header link
@@ -53,5 +57,17 @@ const fetchUsersEpic: AppEpic = (action$, state$) =>
     )
   );
 
-const githubEpic = [fetchUsersEpic];
+const fetchUserEpic: AppEpic = (action$, state$) =>
+  action$.pipe(
+    filter(fetchUser.match),
+    switchMap((action) =>
+      from(getUser(action.payload)).pipe(
+        map((res) => fetchUserSuccess(res.data)),
+        startWith(fetchingUser()),
+        catchError((e) => of(fetchUserFail(e)))
+      )
+    )
+  );
+
+const githubEpic = [fetchUsersEpic, fetchUserEpic];
 export default githubEpic;
