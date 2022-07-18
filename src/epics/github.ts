@@ -3,6 +3,7 @@ import { filter, throttleTime, switchMap, catchError, map, startWith } from "rxj
 import { AppEpic } from "../store";
 import { fetchUsers, fetchUsersSuccess, fetchUsersFail, fetchingUsers } from "../slices/github";
 import { getUsersList } from "../utils/apis";
+import { parseLink, parseSince } from '../utils/parser';
 
 const fetchUsersEpic: AppEpic = (action$, state$) =>
   action$.pipe(
@@ -10,7 +11,20 @@ const fetchUsersEpic: AppEpic = (action$, state$) =>
     throttleTime(200),
     switchMap((action) =>
       from(getUsersList(action.payload)).pipe(
-        map((res) => fetchUsersSuccess(res.data)),
+        map((res) =>
+          {
+            const link = parseLink(res.link ?? "");
+
+            return fetchUsersSuccess(
+              {
+                users: res.data,
+                since: action.payload.since,
+                prev: null,
+                next: link.last || !link.next ? null : parseSince(link.next),
+              }
+            );
+          })
+        ,
         startWith(fetchingUsers()),
         catchError((err) => of(fetchUsersFail(err)))
       )

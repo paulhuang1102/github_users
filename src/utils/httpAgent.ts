@@ -4,6 +4,7 @@ export type ApiResponse = {
   result: boolean;
   data: any;
   message?: string;
+  link?: string;
 };
 class HttpAgent {
   private _headers: AxiosRequestHeaders = {};
@@ -37,6 +38,7 @@ class HttpAgent {
               result: true,
               data: res.data,
               message: res.statusText,
+              link: res.headers.link
             });
           } else {
             reject(res);
