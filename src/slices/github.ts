@@ -6,8 +6,8 @@ interface IGithubState {
   loading: boolean;
   errorMsg?: string | null;
   since: number;
-  prev?: number | null;
-  next?: number | null;
+  prev: number | null;
+  next: number | null;
 }
 
 const initialState: IGithubState = {
